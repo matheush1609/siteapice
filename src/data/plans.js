@@ -62,4 +62,3 @@ export function quote(planId, range) {
   return { monthly, perClient: brl(perClient, Number.isInteger(perClient) ? 0 : 2) };
 }
 
-export const STARTING_PRICE = PRICES.basico[RANGES[0]];

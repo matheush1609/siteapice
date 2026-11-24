@@ -55,11 +55,17 @@
   }
 
   .btn-primary {
-    @apply btn bg-mint text-night hover:bg-mint-light;
+    @apply btn bg-mint text-night hover:bg-mint-light active:scale-[0.98];
+    transition-property: background-color, box-shadow, transform;
+  }
+
+  .btn-primary:hover {
+    box-shadow: 0 0 0 1px rgba(69, 240, 176, 0.4), 0 8px 30px -6px rgba(52, 211, 153, 0.55);
   }
 
   .btn-ghost {
-    @apply btn border border-white/[0.14] text-ink hover:border-white/30 hover:bg-white/[0.04];
+    @apply btn border border-white/[0.14] text-ink hover:border-white/30 hover:bg-white/[0.04] active:scale-[0.98];
+    transition-property: background-color, border-color, transform;
   }
 
   .link {
@@ -212,6 +218,12 @@
   }
   100% {
     box-shadow: 0 0 0 1px rgba(52, 211, 153, 0.25), 0 0 0 rgba(52, 211, 153, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hub-dot {
+    display: none;
   }
 }
 

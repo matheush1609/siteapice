@@ -12,7 +12,7 @@ export function PageHeader({ title, children }) {
         <LightRays intensity={6} rays={24} reach={10} position={18} speed={6} />
       </div>
       <div className="wrap relative pb-16 pt-20 sm:pt-28">
-        <h1 className="display max-w-4xl text-[2.75rem] leading-[1.02] sm:text-[4.25rem]">{title}</h1>
+        <h1 className="display max-w-4xl text-[2.25rem] leading-[1.05] sm:text-[3.25rem] lg:text-[4.25rem]">{title}</h1>
         {children && <p className="lead mt-6 max-w-2xl">{children}</p>}
       </div>
     </header>
@@ -37,20 +37,22 @@ export function Faq({ items }) {
 
 export function ClosingCta({ title = 'Quer ver o ApiceFlow com os clientes da sua agência?', text }) {
   return (
-    <section className="border-t border-white/[0.07]">
-      <div className="wrap flex flex-col gap-8 py-20 md:flex-row md:items-end md:justify-between lg:py-24">
-        <div className="max-w-2xl">
-          <h2 className="h2">{title}</h2>
-          <p className="lead mt-4">
-            {text ?? 'Chame a equipe no WhatsApp. A gente mostra o painel funcionando e indica o plano certo para o tamanho da agência.'}
-          </p>
-        </div>
-        <div className="flex shrink-0 flex-col gap-3 sm:flex-row">
-          <a href={whatsappLink(DEFAULT_WHATSAPP_TEXT)} target="_blank" rel="noopener noreferrer" className="btn-primary">
+    <section className="relative overflow-hidden border-t border-white/[0.07]">
+      {/* Mesmo brilho do topo, vindo de baixo: fecha a página como ela abriu */}
+      <div className="absolute inset-0 -scale-y-100 opacity-70" style={{ maskImage: 'linear-gradient(to bottom, black 20%, transparent 85%)' }}>
+        <LightRays intensity={8} rays={26} reach={12} position={50} speed={6} />
+      </div>
+      <div className="wrap relative flex flex-col items-center py-28 text-center lg:py-36">
+        <h2 className="h2 max-w-3xl sm:text-[3.25rem]">{title}</h2>
+        <p className="lead mt-5 max-w-2xl">
+          {text ?? 'Chame a equipe no WhatsApp. A gente mostra o painel funcionando e indica o plano certo para o tamanho da agência.'}
+        </p>
+        <div className="mt-9 flex w-full flex-col justify-center gap-3 sm:w-auto sm:flex-row">
+          <a href={whatsappLink(DEFAULT_WHATSAPP_TEXT)} target="_blank" rel="noopener noreferrer" className="btn-primary px-6">
             <MessageCircle className="h-[18px] w-[18px]" aria-hidden="true" />
             Falar no WhatsApp
           </a>
-          <Link to="/planos" className="btn-ghost">
+          <Link to="/planos" className="btn-ghost px-6">
             Ver planos
           </Link>
         </div>

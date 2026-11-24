@@ -16,19 +16,23 @@ import logoSm from '../assets/apiceflow-mark-sm.webp';
  * Renderiza uma tela do app em largura fixa e escala para caber no espaço,
  * como um screenshot nítido em qualquer tamanho de tela.
  */
-export function Scaled({ width = 1180, cropTo = 780, children, className = '' }) {
+export function Scaled({ width = 1180, cropFrom = 232, cropTo = 620, children, className = '' }) {
   const outer = useRef(null);
   const inner = useRef(null);
   const [scale, setScale] = useState(1);
+  const [shift, setShift] = useState(0);
   const [height, setHeight] = useState(undefined);
 
   useLayoutEffect(() => {
     const update = () => {
       if (!outer.current || !inner.current) return;
-      // Em celulares, mostra só a parte da esquerda maior, em vez da tela inteira minúscula
+      // Em celulares, esconde o menu lateral do app e mostra só o conteúdo, maior,
+      // em vez da tela inteira minúscula
       const w = outer.current.clientWidth;
-      const s = w < 480 ? w / cropTo : w / width;
+      const crop = w < 480;
+      const s = crop ? w / cropTo : w / width;
       setScale(s);
+      setShift(crop ? -cropFrom * s : 0);
       setHeight(inner.current.offsetHeight * s);
     };
     update();
@@ -36,11 +40,11 @@ export function Scaled({ width = 1180, cropTo = 780, children, className = '' })
     ro.observe(outer.current);
     ro.observe(inner.current);
     return () => ro.disconnect();
-  }, [width, cropTo]);
+  }, [width, cropFrom, cropTo]);
 
   return (
     <div ref={outer} className={`relative w-full overflow-hidden ${className}`} style={{ height }}>
-      <div ref={inner} className="absolute left-0 top-0 origin-top-left" style={{ width, transform: `scale(${scale})` }}>
+      <div ref={inner} className="absolute left-0 top-0 origin-top-left" style={{ width, transform: `translateX(${shift}px) scale(${scale})` }}>
         {children}
       </div>
     </div>

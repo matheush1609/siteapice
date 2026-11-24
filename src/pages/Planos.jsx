@@ -4,7 +4,7 @@ import { ClosingCta, Faq, PageHeader } from '../components/Blocks';
 import { whatsappLink } from '../config';
 import { OVER_LIMIT, RANGES, brl, comparison, plans, quote, rangeLabel } from '../data/plans';
 
-function RangePicker({ value, onChange }) {
+export function RangePicker({ value, onChange, name = 'faixa' }) {
   return (
     <fieldset>
       <legend className="text-[15px] font-medium text-ink">Quantos clientes a agência atende?</legend>
@@ -14,7 +14,7 @@ function RangePicker({ value, onChange }) {
             key={option}
             className="cursor-pointer rounded-full border border-white/[0.12] px-3.5 py-2 text-[15px] text-mist transition-colors hover:border-white/30 hover:text-ink has-[:checked]:border-mint has-[:checked]:bg-mint has-[:checked]:font-medium has-[:checked]:text-night has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-mint"
           >
-            <input type="radio" name="faixa" value={option} checked={value === option} onChange={() => onChange(option)} className="sr-only" />
+            <input type="radio" name={name} value={option} checked={value === option} onChange={() => onChange(option)} className="sr-only" />
             {rangeLabel(option)}
             <span className="sr-only"> clientes</span>
           </label>

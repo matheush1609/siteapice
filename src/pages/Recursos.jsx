@@ -95,7 +95,6 @@ export default function Recursos() {
   const { hash } = useLocation();
   const navigate = useNavigate();
   const panelRef = useRef(null);
-  const listRef = useRef(null);
   const activeId = modules.some((m) => m.id === hash.slice(1)) ? hash.slice(1) : modules[0].id;
   const index = modules.findIndex((m) => m.id === activeId);
   const current = modules[index];
@@ -118,14 +117,6 @@ export default function Recursos() {
     select(modules[(index + keys[event.key] + modules.length) % modules.length].id, true);
   };
 
-  // No celular os botões ficam numa fileira com rolagem: mantém o ativo visível
-  useEffect(() => {
-    const list = listRef.current;
-    const tab = document.getElementById(`tab-${activeId}`);
-    if (!list || !tab || list.scrollWidth <= list.clientWidth) return;
-    list.scrollTo({ left: tab.offsetLeft - 16, behavior: 'smooth' });
-  }, [activeId]);
-
   // Em telas pequenas, ao trocar de aba, traz o conteúdo para a vista
   useEffect(() => {
     if (!hash || window.innerWidth >= 1024) return;
@@ -142,12 +133,11 @@ export default function Recursos() {
       <section className="border-t border-white/[0.07] pb-24 pt-10 lg:pt-14">
         <div className="wrap grid gap-8 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-12">
           <div
-            ref={listRef}
             role="tablist"
             aria-label="Áreas do ApiceFlow"
             aria-orientation="vertical"
             onKeyDown={onKeyDown}
-            className="sticky top-16 z-20 -mx-4 flex gap-2 overflow-x-auto border-b border-white/[0.07] bg-night/90 px-4 py-3 backdrop-blur-md sm:-mx-6 sm:px-6 lg:top-24 lg:mx-0 lg:flex-col lg:gap-1 lg:self-start lg:overflow-visible lg:border-0 lg:bg-transparent lg:p-0 lg:backdrop-blur-none"
+            className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:sticky lg:top-24 lg:flex lg:flex-col lg:gap-1 lg:self-start"
           >
             {modules.map(({ id, title, icon: Icon }) => {
               const on = id === activeId;
@@ -161,20 +151,20 @@ export default function Recursos() {
                   aria-controls="recurso-painel"
                   tabIndex={on ? 0 : -1}
                   onClick={() => select(id)}
-                  className={`group flex shrink-0 items-center gap-3 rounded-lg border px-3.5 py-2.5 text-left text-[15px] transition-colors duration-200 lg:w-full lg:py-3 ${
+                  className={`group flex min-h-12 items-center gap-2.5 rounded-lg border px-3 py-2.5 text-left text-[15px] transition-colors duration-200 lg:w-full lg:gap-3 lg:px-3.5 lg:py-3 ${
                     on
-                      ? 'border-white/[0.1] bg-white/[0.06] text-ink'
-                      : 'border-transparent text-mist hover:bg-white/[0.03] hover:text-ink'
+                      ? 'border-mint/40 bg-white/[0.06] text-ink lg:border-white/[0.1]'
+                      : 'border-white/[0.08] text-mist hover:bg-white/[0.03] hover:text-ink lg:border-transparent'
                   }`}
                 >
                   <Icon className={`h-[18px] w-[18px] shrink-0 transition-colors ${on ? 'text-mint' : 'text-mist/80 group-hover:text-ink'}`} aria-hidden="true" />
-                  <span className="whitespace-nowrap">{title}</span>
+                  <span className="leading-tight lg:whitespace-nowrap">{title}</span>
                 </button>
               );
             })}
           </div>
 
-          <div ref={panelRef} id="recurso-painel" role="tabpanel" aria-labelledby={`tab-${activeId}`} className="scroll-mt-36 min-w-0">
+          <div ref={panelRef} id="recurso-painel" role="tabpanel" aria-labelledby={`tab-${activeId}`} className="min-w-0 scroll-mt-20">
             <div key={activeId} className="tab-in">
               <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] xl:items-end xl:gap-10">
                 <div>

@@ -37,7 +37,7 @@ export default function Contato() {
         </div>
         <div className="wrap relative grid gap-14 pb-24 pt-20 sm:pt-28 lg:grid-cols-[minmax(0,1fr)_32rem] lg:gap-20">
           <div>
-            <h1 className="display text-[2.75rem] leading-[1.02] sm:text-[4rem]">Fale com a equipe</h1>
+            <h1 className="display text-[2.25rem] leading-[1.05] sm:text-[3.25rem] lg:text-[4rem]">Fale com a equipe</h1>
             <p className="lead mt-6 max-w-lg">
               Preencha e continue no WhatsApp. A mensagem já chega pronta, e a equipe responde com uma demonstração e o plano certo para a
               agência.

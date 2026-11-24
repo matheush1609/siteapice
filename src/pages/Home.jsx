@@ -15,7 +15,9 @@ import {
 } from '../screens/Screens';
 import { Bubble, FileReply, Phone, TaskReply } from '../screens/Chat';
 import { DEFAULT_WHATSAPP_TEXT, whatsappLink } from '../config';
-import { STARTING_PRICE, brl } from '../data/plans';
+import { brl, plans, quote, rangeLabel } from '../data/plans';
+import { RangePicker } from './Planos';
+import IntegrationHub from '../components/IntegrationHub';
 
 function Hero() {
   return (
@@ -189,48 +191,69 @@ function Assistant() {
   );
 }
 
-const integrations = [
-  ['Meta Ads', 'Campanhas e conversões do Facebook e do Instagram'],
-  ['Google Ads', 'Pesquisa, display e YouTube, com rastreamento de conversões'],
-  ['Google Drive', 'Uma pasta por cliente, ligada ao perfil dele'],
-  ['Gemini', 'A IA por trás do assistente'],
-];
-
 function Integrations() {
   return (
-    <section className="border-t border-white/[0.07] py-20">
+    <section className="border-t border-white/[0.07] py-24 lg:py-32">
       <div className="wrap">
-        <h2 className="text-[15px] font-medium text-mist">Conectado com as ferramentas que a agência já usa</h2>
-        <ul className="mt-8 grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
-          {integrations.map(([name, text]) => (
-            <li key={name}>
-              <p className="display text-[1.75rem] text-ink">{name}</p>
-              <p className="mt-2 text-[15px] leading-relaxed text-mist">{text}</p>
-            </li>
-          ))}
-        </ul>
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="h2">Tudo chega ao mesmo painel</h2>
+          <p className="lead mt-5">
+            Anúncios, arquivos e mensagens da equipe entram no ApiceFlow sem ninguém copiar de um lugar para o outro.
+          </p>
+        </div>
+        <div className="mt-14 lg:mt-16">
+          <IntegrationHub />
+        </div>
       </div>
     </section>
   );
 }
 
 function PricingTeaser() {
+  const [range, setRange] = useState(10);
+  const options = plans.filter((p) => p.id !== 'enterprise');
+
   return (
-    <section className="border-t border-white/[0.07] py-24">
-      <div className="wrap grid gap-10 lg:grid-cols-2 lg:items-end">
+    <section className="border-t border-white/[0.07] bg-deep py-24 lg:py-32">
+      <div className="wrap grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-center lg:gap-20">
         <div>
           <h2 className="h2">Você paga pelo número de clientes que atende</h2>
-          <p className="lead mt-5 max-w-xl">
-            Escolha a faixa da agência e o plano. Quanto mais clientes, menor o valor por cliente.
-          </p>
+          <p className="lead mt-5 max-w-xl">Escolha a faixa da agência e veja o valor na hora. Quanto mais clientes, menor o preço por cliente.</p>
+          <Link to="/planos" className="link mt-8 inline-block text-[15px]">Comparar todos os planos</Link>
         </div>
-        <div className="lg:text-right">
-          <p className="text-[15px] text-mist">Planos a partir de</p>
-          <p className="display mt-1 text-[4rem] leading-none sm:text-[5rem]">
-            {brl(STARTING_PRICE)}
-            <span className="ml-2 align-baseline text-xl tracking-normal text-mist">por mês</span>
-          </p>
-          <Link to="/planos" className="btn-ghost mt-8">Calcular o valor da minha agência</Link>
+
+        <div className="rounded-[14px] border border-white/[0.09] bg-night p-6 sm:p-8">
+          <RangePicker value={range} onChange={setRange} name="faixa-inicio" />
+          <div className="mt-8 grid gap-px overflow-hidden rounded-xl border border-white/[0.08] bg-white/[0.08] sm:grid-cols-2" aria-live="polite">
+            {options.map((plan) => {
+              const q = quote(plan.id, range);
+              return (
+                <div key={plan.id} className={`p-5 ${plan.highlighted ? 'bg-surface' : 'bg-night'}`}>
+                  <p className="text-[15px] text-mist">{plan.name}</p>
+                  {q ? (
+                    <>
+                      <p key={range} className="tab-in display mt-1 text-[2.25rem] leading-tight">{brl(q.monthly)}</p>
+                      <p className="text-sm text-mist">por mês, {q.perClient} por cliente</p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="display mt-1 text-[2.25rem] leading-tight">Sob consulta</p>
+                      <p className="text-sm text-mist">a equipe monta uma proposta</p>
+                    </>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          <a
+            href={whatsappLink(`Olá! Quero conhecer os planos do ApiceFlow. Minha agência atende ${rangeLabel(range).toLowerCase()} clientes.`)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-primary mt-6 w-full"
+          >
+            <MessageCircle className="h-[18px] w-[18px]" aria-hidden="true" />
+            Falar com a equipe sobre esse valor
+          </a>
         </div>
       </div>
     </section>
