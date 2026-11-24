@@ -10,7 +10,7 @@ const meta = {
   '/': ['ApiceFlow | Gestão para agências de marketing', 'Clientes, campanhas de Meta Ads e Google Ads, tarefas, arquivos e financeiro da agência em um só painel, com um assistente de IA no WhatsApp.'],
   '/recursos': ['Recursos | ApiceFlow', 'Clientes, campanhas, tarefas, arquivos no Google Drive, financeiro e relatórios: veja cada área do ApiceFlow.'],
   '/assistente': ['Assistente no WhatsApp | ApiceFlow', 'Peça por mensagem e o assistente do ApiceFlow cria clientes, tarefas e campanhas e encontra arquivos dos clientes.'],
-  '/planos': ['Planos | ApiceFlow', 'Planos do ApiceFlow cobrados pelo número de clientes da agência. Escolha a faixa e veja o valor mensal.'],
+  '/planos': ['Planos | ApiceFlow', 'Planos do ApiceFlow por quantidade de clientes: Starter, Pro, Premium e Enterprise. Compare os recursos e contrate pelo WhatsApp.'],
   '/contato': ['Contato | ApiceFlow', 'Fale com a equipe do ApiceFlow pelo WhatsApp e peça uma demonstração.'],
 };
 

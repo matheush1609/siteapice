@@ -1,64 +1,80 @@
 /*
- * Cobrança por número de clientes da agência, em faixas.
- * VALORES A CONFIRMAR: a faixa "até 5" usa os preços atuais do app (R$ 150 e R$ 300);
- * as demais são uma proposta com desconto progressivo. Edite só esta tabela.
+ * Planos do ApiceFlow: cópia fiel da aba de planos da main do app
+ * (apiceflow/front-end/src/pages/Plans.jsx), com os mesmos nomes de campos e o mesmo cálculo.
+ * Quando o site e o app forem conectados, estes dados passam a vir de lá.
  */
-export const RANGES = [5, 10, 15, 20, 30, 50];
-export const OVER_LIMIT = 'mais';
-
-export const PRICES = {
-  basico: { 5: 150, 10: 270, 15: 375, 20: 465, 30: 630, 50: 900 },
-  profissional: { 5: 300, 10: 540, 15: 750, 20: 930, 30: 1260, 50: 1800 },
-};
+export const clientOptions = [10, 25, 50];
 
 export const plans = [
   {
-    id: 'basico',
-    name: 'Básico',
-    description: 'Para começar a organizar a operação da agência.',
-    includes: ['Gestão de clientes e tarefas', 'Painel com a visão geral da operação', 'Relatórios essenciais'],
-    notes: ['Recursos avançados de campanhas não incluídos', 'Suporte em horário comercial'],
+    key: 'Starter',
+    name: 'Starter',
+    subtitle: 'Ideal para começar',
+    price: 52.45,
+    originalPrice: 62.54,
+    clientLimit: 10,
+    users: 1,
+    ai: 'Opcional',
+    featured: false,
   },
   {
-    id: 'profissional',
-    name: 'Profissional',
-    description: 'Para equipes que precisam de mais controle sobre as campanhas.',
-    highlighted: true,
-    includes: ['Tudo do plano Básico', 'Integração com Meta Ads', 'Análises e relatórios avançados', 'Suporte prioritário'],
-    notes: ['Limites de uso dependem do volume contratado'],
+    key: 'Profissional',
+    name: 'Pro',
+    subtitle: 'Operação em crescimento',
+    price: 76.51,
+    originalPrice: 91.08,
+    clientLimit: 25,
+    users: 3,
+    ai: 'Opcional',
+    featured: true,
   },
   {
-    id: 'enterprise',
-    name: 'Enterprise',
-    description: 'Para operações maiores ou com necessidades específicas.',
-    includes: ['Tudo do plano Profissional', 'Mais usuários e maior volume', 'Configuração personalizada', 'Atendimento dedicado'],
-    notes: ['Proposta montada depois de uma conversa com a equipe'],
+    key: 'Premium',
+    name: 'Premium',
+    subtitle: 'Mais recursos e escala',
+    price: 139,
+    originalPrice: 167.17,
+    clientLimit: 50,
+    users: 10,
+    ai: 'Opcional',
+    featured: false,
   },
 ];
 
-// Comparação por recurso, com o que consta nos planos do app (true = incluído)
-export const comparison = [
-  ['Gestão de clientes e tarefas', true, true, true],
-  ['Painel com a visão geral da operação', true, true, true],
-  ['Relatórios essenciais', true, true, true],
-  ['Integração com Meta Ads', false, true, true],
-  ['Análises e relatórios avançados', false, true, true],
-  ['Mais usuários e maior volume', false, false, true],
-  ['Configuração personalizada', false, false, true],
-  ['Suporte', 'Horário comercial', 'Prioritário', 'Dedicado'],
+export const realFeatures = [
+  { label: 'Gestão de clientes', description: 'Cadastro, status, contatos e histórico', starter: true, pro: true, premium: true },
+  { label: 'Tarefas e responsáveis', description: 'Criação, prioridade e acompanhamento', starter: true, pro: true, premium: true },
+  { label: 'Campanhas', description: 'Campanhas vinculadas aos clientes', starter: true, pro: true, premium: true },
+  { label: 'Gestão pelo WhatsApp', description: 'Consulta e operação do sistema por conversa', starter: false, pro: true, premium: true },
+  { label: 'Integração com CRMs', description: 'Conexão com plataformas externas por API', starter: false, pro: true, premium: true },
+  { label: 'Integrações ampliadas de CRM', description: 'Mais parceiros e conexões simultâneas', starter: false, pro: false, premium: true },
+  { label: 'Marketing', description: 'Visitantes, leads, conversões e indicadores', starter: false, pro: true, premium: true },
+  { label: 'Meta Ads', description: 'Conexão e consulta de campanhas', starter: false, pro: true, premium: true },
+  { label: 'Google Ads', description: 'Tracking e configurações de conversão', starter: false, pro: false, premium: true },
+  { label: 'Financeiro', description: 'Gastos, vencimentos e categorias', starter: false, pro: true, premium: true },
+  { label: 'Arquivos', description: 'Envio e organização de arquivos dos clientes', starter: true, pro: true, premium: true },
+  { label: 'Relatórios', description: 'Painéis e relatórios operacionais', starter: false, pro: true, premium: true },
+  { label: 'IA ApiceFlow', description: 'Assistente operacional com Gemini', starter: false, pro: false, premium: true },
+  { label: 'Parceiros e API', description: 'API keys, webhooks e conexões diretas', starter: false, pro: false, premium: true },
 ];
 
-export const brl = (value, decimals = 0) =>
-  value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+export const AI_ADDON = 49;
+export const ANNUAL_DISCOUNT = 0.82;
 
-export function rangeLabel(range) {
-  return range === OVER_LIMIT ? `Mais de ${RANGES[RANGES.length - 1]}` : `Até ${range}`;
+export const formatPrice = (value) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+
+// Mesmo cálculo da página do app
+export function adjustPlans({ annual = false, extraAi = false } = {}) {
+  return plans.map((plan) => {
+    const scale = plan.clientLimit === 25 ? 1 : plan.clientLimit === 50 ? 1.7 : 1;
+    const aiAddon = extraAi ? AI_ADDON : 0;
+    const annualDiscount = annual ? ANNUAL_DISCOUNT : 1;
+    return {
+      ...plan,
+      finalPrice: (plan.price * scale + aiAddon) * annualDiscount,
+      originalPrice: (plan.originalPrice * scale + aiAddon) * annualDiscount,
+    };
+  });
 }
 
-export function quote(planId, range) {
-  const monthly = PRICES[planId]?.[range];
-  if (!monthly) return null;
-  const perClient = monthly / range;
-  return { monthly, perClient: brl(perClient, Number.isInteger(perClient) ? 0 : 2) };
-}
-
+export const STARTING_PRICE = formatPrice(adjustPlans()[0].finalPrice);

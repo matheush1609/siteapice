@@ -34,6 +34,10 @@ const faq = [
     q: 'Qual IA o assistente usa?',
     a: 'O Gemini, modelo de IA do Google.',
   },
+  {
+    q: 'Em quais planos o assistente está disponível?',
+    a: 'A gestão pelo WhatsApp está nos planos Pro e Premium. A IA ApiceFlow vem no Premium e pode ser adicionada aos outros planos como pacote de IA.',
+  },
 ];
 
 export default function Assistente() {
@@ -103,7 +107,7 @@ export default function Assistente() {
           </div>
           <figure className="m-0 mt-12">
             <div className="screen">
-              <Scaled width={1180}>
+              <Scaled width={1320}>
                 <FilesScreen />
               </Scaled>
             </div>

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { MessageCircle, Plus } from 'lucide-react';
 import { DEFAULT_WHATSAPP_TEXT, whatsappLink } from '../config';
 import LightRays from './LightRays';
-import { OVER_LIMIT, RANGES, plans, rangeLabel } from '../data/plans';
+import { plans } from '../data/plans';
 
 export function PageHeader({ title, children }) {
   return (
@@ -62,7 +62,7 @@ export function ClosingCta({ title = 'Quer ver o ApiceFlow com os clientes da su
 }
 
 export function ContactForm({ compact = false }) {
-  const [form, setForm] = useState({ name: '', agency: '', phone: '', clients: '', plan: 'Ainda não sei', message: '' });
+  const [form, setForm] = useState({ name: '', agency: '', phone: '', plan: 'Ainda não sei', message: '' });
   const update = (field) => (event) => setForm((current) => ({ ...current, [field]: event.target.value }));
 
   const handleSubmit = (event) => {
@@ -73,7 +73,6 @@ export function ContactForm({ compact = false }) {
       `Nome: ${form.name.trim()}`,
       `Agência: ${form.agency.trim()}`,
       `WhatsApp: ${form.phone.trim()}`,
-      form.clients ? `Clientes atendidos: ${form.clients}` : '',
       `Plano de interesse: ${form.plan}`,
       form.message.trim() ? `Mensagem: ${form.message.trim()}` : '',
     ]
@@ -98,25 +97,15 @@ export function ContactForm({ compact = false }) {
         <label htmlFor="c-phone" className="mb-1.5 block text-sm font-medium">WhatsApp</label>
         <input id="c-phone" className="field" type="tel" inputMode="tel" autoComplete="tel" placeholder="(91) 91234-5678" value={form.phone} onChange={update('phone')} required />
       </div>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <label htmlFor="c-clients" className="mb-1.5 block text-sm font-medium">Clientes atendidos</label>
-          <select id="c-clients" className="field" value={form.clients} onChange={update('clients')}>
-            <option value="">Selecione</option>
-            {[...RANGES, OVER_LIMIT].map((range) => (
-              <option key={range} value={rangeLabel(range)}>{rangeLabel(range)}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label htmlFor="c-plan" className="mb-1.5 block text-sm font-medium">Plano de interesse</label>
-          <select id="c-plan" className="field" value={form.plan} onChange={update('plan')}>
-            <option>Ainda não sei</option>
-            {plans.map((plan) => (
-              <option key={plan.id} value={plan.name}>{plan.name}</option>
-            ))}
-          </select>
-        </div>
+      <div>
+        <label htmlFor="c-plan" className="mb-1.5 block text-sm font-medium">Plano de interesse</label>
+        <select id="c-plan" className="field" value={form.plan} onChange={update('plan')}>
+          <option>Ainda não sei</option>
+          {plans.map((plan) => (
+            <option key={plan.name} value={plan.name}>{plan.name} (até {plan.clientLimit} clientes)</option>
+          ))}
+          <option value="Enterprise">Enterprise (mais de 50 clientes)</option>
+        </select>
       </div>
       <div>
         <label htmlFor="c-message" className="mb-1.5 block text-sm font-medium">

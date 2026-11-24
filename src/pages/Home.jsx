@@ -15,8 +15,7 @@ import {
 } from '../screens/Screens';
 import { Bubble, FileReply, Phone, TaskReply } from '../screens/Chat';
 import { DEFAULT_WHATSAPP_TEXT, whatsappLink } from '../config';
-import { brl, plans, quote, rangeLabel } from '../data/plans';
-import { RangePicker } from './Planos';
+import { STARTING_PRICE, adjustPlans, formatPrice } from '../data/plans';
 import IntegrationHub from '../components/IntegrationHub';
 
 function Hero() {
@@ -48,7 +47,7 @@ function Hero() {
       <figure className="wrap relative mt-16 sm:mt-20">
         <div className="rise relative lg:pr-20 xl:pr-28" style={{ animationDelay: '0.8s' }}>
           <div className="screen">
-            <Scaled width={1180}>
+            <Scaled width={1320}>
               <TasksScreen newTask newTaskDelay={3.4} />
             </Scaled>
           </div>
@@ -130,7 +129,7 @@ function Tour() {
           <div id="tour-panel" role="tabpanel" aria-labelledby={`tab-${active}`}>
             <p key={`t-${active}`} className="tab-in mb-5 text-[15px] text-mist lg:hidden">{current.text}</p>
             <div key={active} className="screen tab-in">
-              <Scaled width={1180}>
+              <Scaled width={1320}>
                 <current.Screen />
               </Scaled>
             </div>
@@ -210,51 +209,32 @@ function Integrations() {
 }
 
 function PricingTeaser() {
-  const [range, setRange] = useState(10);
-  const options = plans.filter((p) => p.id !== 'enterprise');
-
+  const list = adjustPlans();
   return (
     <section className="border-t border-white/[0.07] bg-deep py-24 lg:py-32">
-      <div className="wrap grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-center lg:gap-20">
-        <div>
-          <h2 className="h2">Você paga pelo número de clientes que atende</h2>
-          <p className="lead mt-5 max-w-xl">Escolha a faixa da agência e veja o valor na hora. Quanto mais clientes, menor o preço por cliente.</p>
-          <Link to="/planos" className="link mt-8 inline-block text-[15px]">Comparar todos os planos</Link>
+      <div className="wrap">
+        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <div className="max-w-2xl">
+            <h2 className="h2">Planos a partir de {STARTING_PRICE} por mês</h2>
+            <p className="lead mt-5">O plano acompanha a quantidade de clientes da agência. Acima de 50 clientes, o Enterprise é montado sob medida.</p>
+          </div>
+          <Link to="/planos" className="btn-ghost shrink-0">Ver e comparar planos</Link>
         </div>
 
-        <div className="rounded-[14px] border border-white/[0.09] bg-night p-6 sm:p-8">
-          <RangePicker value={range} onChange={setRange} name="faixa-inicio" />
-          <div className="mt-8 grid gap-px overflow-hidden rounded-xl border border-white/[0.08] bg-white/[0.08] sm:grid-cols-2" aria-live="polite">
-            {options.map((plan) => {
-              const q = quote(plan.id, range);
-              return (
-                <div key={plan.id} className={`p-5 ${plan.highlighted ? 'bg-surface' : 'bg-night'}`}>
-                  <p className="text-[15px] text-mist">{plan.name}</p>
-                  {q ? (
-                    <>
-                      <p key={range} className="tab-in display mt-1 text-[2.25rem] leading-tight">{brl(q.monthly)}</p>
-                      <p className="text-sm text-mist">por mês, {q.perClient} por cliente</p>
-                    </>
-                  ) : (
-                    <>
-                      <p className="display mt-1 text-[2.25rem] leading-tight">Sob consulta</p>
-                      <p className="text-sm text-mist">a equipe monta uma proposta</p>
-                    </>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-          <a
-            href={whatsappLink(`Olá! Quero conhecer os planos do ApiceFlow. Minha agência atende ${rangeLabel(range).toLowerCase()} clientes.`)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-primary mt-6 w-full"
-          >
-            <MessageCircle className="h-[18px] w-[18px]" aria-hidden="true" />
-            Falar com a equipe sobre esse valor
-          </a>
-        </div>
+        <ul className="mt-12 grid gap-px overflow-hidden rounded-[14px] border border-white/[0.09] bg-white/[0.08] md:grid-cols-3">
+          {list.map((plan) => (
+            <li key={plan.name} className={`relative p-7 ${plan.featured ? 'bg-surface' : 'bg-night'}`}>
+              {plan.featured && <span className="absolute inset-x-0 top-0 h-px bg-mint" aria-hidden="true" />}
+              <div className="flex items-center gap-3">
+                <h3 className="h3">{plan.name}</h3>
+                {plan.featured && <span className="rounded-full bg-mint px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-night">Mais escolhido</span>}
+              </div>
+              <p className="mt-1 text-sm text-mint">{plan.subtitle}</p>
+              <p className="display mt-5 text-[2.5rem] leading-none">{formatPrice(plan.finalPrice)}</p>
+              <p className="mt-2 text-sm text-mist">por mês · até {plan.clientLimit} clientes · {plan.users} usuário{plan.users > 1 ? 's' : ''}</p>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );

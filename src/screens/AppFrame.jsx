@@ -2,13 +2,20 @@ import { useLayoutEffect, useRef, useState } from 'react';
 import {
   BarChart3,
   Bell,
+  Bot,
   CheckSquare,
+  ChevronLeft,
+  Command,
+  Handshake,
   LayoutDashboard,
-  LineChart,
+  LogOut,
   Search,
   Settings,
+  Shield,
+  Sparkles,
   Users,
   WalletCards,
+  Zap,
 } from 'lucide-react';
 import logoSm from '../assets/apiceflow-mark-sm.webp';
 
@@ -16,7 +23,7 @@ import logoSm from '../assets/apiceflow-mark-sm.webp';
  * Renderiza uma tela do app em largura fixa e escala para caber no espaço,
  * como um screenshot nítido em qualquer tamanho de tela.
  */
-export function Scaled({ width = 1180, cropFrom = 232, cropTo = 620, children, className = '' }) {
+export function Scaled({ width = 1320, cropFrom = 256, cropTo = 620, children, className = '' }) {
   const outer = useRef(null);
   const inner = useRef(null);
   const [scale, setScale] = useState(1);
@@ -51,70 +58,99 @@ export function Scaled({ width = 1180, cropFrom = 232, cropTo = 620, children, c
   );
 }
 
+// Menu lateral igual ao da main do ApiceFlow (front-end/src/components/layout/Sidebar.jsx, perfil admin)
 const nav = [
   { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { id: 'clientes', icon: Users, label: 'Clientes' },
-  { id: 'marketing', icon: LineChart, label: 'Marketing' },
+  { id: 'marketing', icon: BarChart3, label: 'Marketing' },
   { id: 'tarefas', icon: CheckSquare, label: 'Tarefas' },
-  { id: 'relatorios', icon: BarChart3, label: 'Relatórios' },
+  { id: 'relatorios', icon: BarChart3, label: 'Relatorios' },
   { id: 'financeiro', icon: WalletCards, label: 'Financeiro' },
   { id: 'config', icon: Settings, label: 'Configurações' },
+  { id: 'parceiros', icon: Handshake, label: 'Parceiros' },
+  { id: 'usuarios', icon: Shield, label: 'Usuarios' },
+  { id: 'ia', icon: Bot, label: 'IA Agents' },
 ];
 
-export function AppFrame({ active, title, subtitle, actions, children, minHeight = 660 }) {
+const chip = 'flex h-9 items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.035] px-3 text-[12px] font-medium text-mist';
+
+export function AppFrame({ active, title, subtitle, actions, children, minHeight = 700 }) {
   return (
     <div className="flex text-ink" style={{ minHeight }} aria-hidden="true">
-      <aside className="flex w-[232px] shrink-0 flex-col border-r border-white/[0.05] bg-sidebar">
-        <div className="flex h-[76px] items-center gap-3 border-b border-white/[0.06] px-5">
-          <img src={logoSm} alt="" className="h-7 w-11 object-contain" />
-          <span className="font-display text-[17px] font-semibold tracking-tight">ApiceFlow</span>
+      <aside className="flex w-64 shrink-0 flex-col border-r border-white/[0.05] bg-sidebar">
+        <div className="flex h-[88px] items-center gap-3 border-b border-white/[0.06] px-5">
+          <img src={logoSm} alt="" className="h-9 w-14 object-contain drop-shadow-[0_0_10px_rgba(52,211,153,0.18)]" />
+          <div className="min-w-0">
+            <span className="block font-display text-lg font-extrabold tracking-tight">ApiceFlow</span>
+            <span className="block text-[10px] font-semibold uppercase tracking-[0.28em] text-mist">Command SaaS</span>
+          </div>
         </div>
-        <nav className="space-y-1 px-3 py-5">
+        <nav className="flex-1 space-y-1.5 px-3 py-5">
           {nav.map(({ id, icon: Icon, label }) => {
             const on = id === active;
             return (
               <div
                 key={id}
                 className={`relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-medium ${
-                  on ? 'bg-white/[0.07] text-ink ring-1 ring-white/[0.08]' : 'text-mist'
+                  on ? 'bg-white/[0.07] text-ink shadow-md shadow-black/10 ring-1 ring-white/[0.08]' : 'text-mist'
                 }`}
               >
                 {on && <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-mint/80" />}
-                <Icon className={`h-[18px] w-[18px] ${on ? 'text-mint' : 'text-mist/80'}`} />
+                <Icon className={`h-5 w-5 ${on ? 'text-mint' : 'text-mist/80'}`} />
                 {label}
               </div>
             );
           })}
         </nav>
-        <div className="mt-auto border-t border-white/[0.06] p-4">
-          <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-teal to-sky text-[13px] font-semibold text-night">MR</span>
-            <div className="leading-tight">
-              <p className="text-[13px] font-medium">Marina Rocha</p>
-              <p className="text-[12px] text-mist">Administradora</p>
-            </div>
-          </div>
+        <div className="space-y-1.5 border-t border-white/[0.06] p-3 text-[14px] text-mist">
+          <div className="flex items-center gap-3 rounded-xl px-3 py-2.5"><ChevronLeft className="h-5 w-5" />Recolher</div>
+          <div className="flex items-center gap-3 rounded-xl px-3 py-2.5"><LogOut className="h-5 w-5" />Sair</div>
         </div>
       </aside>
 
       <div className="min-w-0 flex-1 bg-night">
-        <header className="flex h-[76px] items-center gap-4 border-b border-white/[0.06] px-8">
-          <div className="min-w-0">
-            <p className="text-[22px] font-bold tracking-tight">{title}</p>
-            {subtitle && <p className="text-[13px] text-mist">{subtitle}</p>}
-          </div>
-          <div className="ml-auto flex items-center gap-3">
-            {actions}
-            <div className="flex h-9 w-60 items-center gap-2 rounded-lg border border-white/[0.07] bg-white/[0.03] px-3 text-[13px] text-mist">
-              <Search className="h-4 w-4" />
-              Buscar
+        <header className="flex items-center justify-between gap-4 border-b border-white/[0.06] px-8 py-3">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-[360px] items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.035] px-3 text-[13px] text-mist">
+              <Search className="h-4 w-4 text-mint/70" />
+              <span className="flex-1">Buscar clientes, campanhas, tarefas...</span>
+              <span className="flex items-center gap-1 rounded-md border border-white/[0.08] bg-white/[0.04] px-1.5 py-0.5 text-[11px]">
+                <Command className="h-3 w-3" /> K
+              </span>
             </div>
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/[0.07] text-mist">
+            <div className="flex items-center gap-2 rounded-full border border-emerald-400/15 bg-emerald-400/[0.06] px-3 py-1.5 text-[12px] font-medium text-emerald-300">
+              <span className="h-2 w-2 rounded-full bg-mint" />
+              Operational
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className={chip}><Zap className="h-4 w-4 text-teal" />Quick action</span>
+            <span className={chip}><Sparkles className="h-4 w-4 text-mint" />AI activity</span>
+            <span className="relative flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.035] text-mist">
               <Bell className="h-4 w-4" />
+              <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-mint shadow-[0_0_12px_rgba(52,211,153,0.65)]" />
+            </span>
+            <span className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.035] py-1 pl-2 pr-3">
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-mint to-teal text-[12px] font-black text-night">M</span>
+              <span className="leading-tight">
+                <span className="block text-[12px] font-semibold">Marina Rocha</span>
+                <span className="block text-[11px] text-mist">admin</span>
+              </span>
             </span>
           </div>
         </header>
-        <div className="p-8">{children}</div>
+        <div className="p-8">
+          {title && (
+            <div className="mb-7 flex items-end justify-between gap-4">
+              <div>
+                <p className="text-[30px] font-bold tracking-tight">{title}</p>
+                {subtitle && <p className="mt-1 text-[14px] text-mist">{subtitle}</p>}
+              </div>
+              {actions}
+            </div>
+          )}
+          {children}
+        </div>
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import {
   Check,
   CheckSquare,
   FolderOpen,
+  Handshake,
   LayoutDashboard,
   LineChart,
   ShieldCheck,
@@ -19,11 +20,12 @@ import {
   FilesScreen,
   FinanceScreen,
   MarketingScreen,
+  PartnersScreen,
   ReportsScreen,
   TasksScreen,
 } from '../screens/Screens';
 
-// Mesma ordem do menu lateral do app. Arquivos (dentro do perfil do cliente) e Equipe vêm no fim.
+// Mesma ordem do menu lateral do app (main). Arquivos (dentro do perfil do cliente) e Equipe vêm no fim.
 const modules = [
   {
     id: 'dashboard',
@@ -72,6 +74,14 @@ const modules = [
     text: 'Os gastos da agência organizados, com o que já foi pago e o que ainda vence.',
     points: ['Total de gastos e gastos do mês', 'Contas pendentes e pagas', 'Gastos por categoria e próximos pagamentos'],
     Screen: FinanceScreen,
+  },
+  {
+    id: 'parceiros',
+    title: 'Parceiros',
+    icon: Handshake,
+    text: 'A central de integrações: conecte o ApiceFlow ao CRM, ao ERP ou à automação que a agência já usa.',
+    points: ['API própria com API keys para outros sistemas', 'Webhooks que avisam o seu CRM ou ERP a cada evento', 'Conexão direta enviando dados para uma URL sua'],
+    Screen: PartnersScreen,
   },
   {
     id: 'arquivos',
@@ -184,7 +194,7 @@ export default function Recursos() {
               {current.Screen ? (
                 <figure className="m-0 mt-10">
                   <div className="screen">
-                    <Scaled width={1180}>
+                    <Scaled width={1320}>
                       <current.Screen />
                     </Scaled>
                   </div>

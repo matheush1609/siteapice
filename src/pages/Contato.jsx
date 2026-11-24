@@ -15,7 +15,7 @@ const faq = [
   },
   {
     q: 'Quais contas de anúncio posso conectar?',
-    a: 'Meta Ads (Facebook e Instagram) e Google Ads.',
+    a: 'Meta Ads (Facebook e Instagram) nos planos Pro e Premium, e Google Ads no Premium.',
   },
   {
     q: 'A equipe toda pode usar?',

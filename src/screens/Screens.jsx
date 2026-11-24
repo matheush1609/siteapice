@@ -1,5 +1,12 @@
 import {
+  Activity,
   Bot,
+  Braces,
+  KeyRound,
+  PlugZap,
+  ShieldCheck,
+  Webhook,
+  Zap,
   Building2,
   CircleCheckBig,
   CircleDollarSign,
@@ -443,6 +450,77 @@ export function ClientsScreen() {
               <span>{c.plan}</span>
               <Avatar initials={c.owner} tone={avatarTone[c.owner]} size="h-6 w-6 text-[10px]" />
             </div>
+          </div>
+        ))}
+      </div>
+    </AppFrame>
+  );
+}
+
+// Tela "Parceiros" (central de integrações), nova na main do app
+export function PartnersScreen() {
+  const tabs = [
+    ['Visão geral', Activity],
+    ['API keys', KeyRound],
+    ['Webhooks', Webhook],
+    ['Conexões', Zap],
+    ['Documentação', Braces],
+  ];
+  const cards = [
+    [KeyRound, 'API própria', 'Para sistemas externos consultarem e criarem dados no ApiceFlow.', 'Criar API key'],
+    [Webhook, 'Webhooks', 'Receba eventos automaticamente em seu CRM, ERP ou automação.', 'Configurar webhook'],
+    [PlugZap, 'Conexão direta', 'Envie dados em tempo real para uma URL de integração própria.', 'Conectar sistema'],
+  ];
+  return (
+    <AppFrame
+      active="parceiros"
+      title="Parceiros"
+      subtitle="Conecte APIs, configure webhooks e envie dados diretamente para outros sistemas."
+      actions={
+        <span className="flex items-center gap-2 rounded-xl border border-emerald-400/15 bg-emerald-400/[0.06] px-3 py-2 text-[12px] font-medium text-emerald-200">
+          <ShieldCheck className="h-4 w-4" /> Integrações por workspace
+        </span>
+      }
+    >
+      <div className="grid grid-cols-3 gap-4">
+        {[
+          ['2', KeyRound, 'Credenciais ativas'],
+          ['3', Webhook, 'Eventos configurados'],
+          ['1', Zap, 'Sistemas conectados'],
+        ].map(([value, Icon, label]) => (
+          <div key={label} className="flex items-center gap-4 rounded-2xl border border-white/[0.08] bg-surface/75 p-5">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-mint/15 bg-mint/[0.07] text-mint">
+              <Icon className="h-5 w-5" />
+            </span>
+            <div>
+              <p className="text-[24px] font-bold">{value}</p>
+              <p className="text-[12px] text-mist">{label}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="mt-6 flex gap-1 rounded-2xl border border-white/[0.08] bg-surface/55 p-1.5">
+        {tabs.map(([label, Icon], i) => (
+          <span
+            key={label}
+            className={`flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-[13px] ${
+              i === 0 ? 'bg-mint/[0.1] text-mint ring-1 ring-mint/20' : 'text-mist'
+            }`}
+          >
+            <Icon className="h-4 w-4" />
+            {label}
+          </span>
+        ))}
+      </div>
+      <div className="mt-6 grid grid-cols-3 gap-5">
+        {cards.map(([Icon, title, text, action]) => (
+          <div key={title} className="rounded-2xl border border-white/[0.08] bg-surface/75 p-6">
+            <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-mint/15 bg-mint/[0.07] text-mint">
+              <Icon className="h-5 w-5" />
+            </span>
+            <p className="mt-4 text-[17px] font-semibold">{title}</p>
+            <p className="mt-1.5 text-[13.5px] leading-relaxed text-mist">{text}</p>
+            <span className="mt-5 inline-flex h-9 items-center rounded-lg border border-white/[0.1] px-3.5 text-[13px] font-medium">{action}</span>
           </div>
         ))}
       </div>
