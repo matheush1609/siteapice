@@ -25,9 +25,9 @@ export function Scaled({ width = 1180, cropTo = 780, children, className = '' })
   useLayoutEffect(() => {
     const update = () => {
       if (!outer.current || !inner.current) return;
-      // Em telas estreitas, mostra só a parte da esquerda maior, em vez da tela inteira minúscula
+      // Em celulares, mostra só a parte da esquerda maior, em vez da tela inteira minúscula
       const w = outer.current.clientWidth;
-      const s = w < 640 ? w / cropTo : w / width;
+      const s = w < 480 ? w / cropTo : w / width;
       setScale(s);
       setHeight(inner.current.offsetHeight * s);
     };
