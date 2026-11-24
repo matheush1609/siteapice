@@ -1,6 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MessageCircle } from 'lucide-react';
+import {
+  BarChart3,
+  CheckSquare,
+  ChevronLeft,
+  ChevronRight,
+  Handshake,
+  LayoutDashboard,
+  Megaphone,
+  MessageCircle,
+  Users,
+  WalletCards,
+} from 'lucide-react';
 import LightRays from '../components/LightRays';
 import BlurReveal from '../components/BlurReveal';
 import { ClosingCta } from '../components/Blocks';
@@ -21,48 +32,64 @@ import IntegrationHub from '../components/IntegrationHub';
 
 // Mesma ordem e nomes do menu lateral da main do ApiceFlow
 const tabs = [
-  { id: 'dashboard', label: 'Dashboard', text: 'Clientes ativos, pendentes e arquivos recebidos assim que você entra.', Screen: DashboardScreen },
-  { id: 'clientes', label: 'Clientes', text: 'Um perfil por cliente, com campanhas, tarefas, arquivos e responsável.', Screen: ClientsScreen },
-  { id: 'marketing', label: 'Marketing', text: 'Campanhas de Meta Ads e Google Ads lado a lado, com investimento e conversões rastreadas.', Screen: MarketingScreen },
-  { id: 'tarefas', label: 'Tarefas', text: 'Quadro da equipe com prioridade, prazo e responsável em cada card.', Screen: TasksScreen },
-  { id: 'relatorios', label: 'Relatórios', text: 'Orçamento, gasto, conversões e ROI de cada cliente no mês.', Screen: ReportsScreen },
-  { id: 'financeiro', label: 'Financeiro', text: 'Gastos da agência, contas pendentes e pagas, separados por categoria.', Screen: FinanceScreen },
-  { id: 'parceiros', label: 'Parceiros', text: 'API própria, webhooks e conexões para ligar o ApiceFlow ao CRM ou ERP.', Screen: PartnersScreen },
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, text: 'Clientes ativos, pendentes e arquivos recebidos assim que você entra.', Screen: DashboardScreen },
+  { id: 'clientes', label: 'Clientes', icon: Users, text: 'Um perfil por cliente, com campanhas, tarefas, arquivos e responsável.', Screen: ClientsScreen },
+  { id: 'marketing', label: 'Marketing', icon: Megaphone, text: 'Campanhas de Meta Ads e Google Ads lado a lado, com investimento e conversões rastreadas.', Screen: MarketingScreen },
+  { id: 'tarefas', label: 'Tarefas', icon: CheckSquare, text: 'Quadro da equipe com prioridade, prazo e responsável em cada card.', Screen: TasksScreen },
+  { id: 'relatorios', label: 'Relatórios', icon: BarChart3, text: 'Orçamento, gasto, conversões e ROI de cada cliente no mês.', Screen: ReportsScreen },
+  { id: 'financeiro', label: 'Financeiro', icon: WalletCards, text: 'Gastos da agência, contas pendentes e pagas, separados por categoria.', Screen: FinanceScreen },
+  { id: 'parceiros', label: 'Parceiros', icon: Handshake, text: 'API própria, webhooks e conexões para ligar o ApiceFlow ao CRM ou ERP.', Screen: PartnersScreen },
 ];
 
-// Tour pelas telas, em destaque no topo da página, abrindo no Dashboard
+/*
+ * Tour pelas telas, em destaque no topo da página, abrindo no Dashboard.
+ * Computador: barra de abas centralizada. Celular: grade de botões com ícone,
+ * todas as telas à vista, e dá para deslizar o dedo na tela para trocar.
+ */
 function HeroTour() {
   const [active, setActive] = useState('dashboard');
-  const current = tabs.find((t) => t.id === active);
+  const index = tabs.findIndex((t) => t.id === active);
+  const current = tabs[index];
+  const touch = useRef(null);
 
-  // No celular as abas ficam numa fileira rolável: mantém a escolhida à vista
-  useEffect(() => {
-    const tab = document.getElementById(`tab-${active}`);
-    const list = tab?.parentElement;
-    if (!list || list.scrollWidth <= list.clientWidth) return;
-    list.scrollTo({ left: tab.offsetLeft - 16, behavior: 'smooth' });
-  }, [active]);
+  const go = (step, focus = false) => {
+    const t = tabs[(index + step + tabs.length) % tabs.length];
+    setActive(t.id);
+    if (focus) document.getElementById(`tab-${t.id}`)?.focus();
+  };
 
   const onKey = (event) => {
-    const i = tabs.findIndex((t) => t.id === active);
-    const next = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
-    if (!next) return;
+    const keys = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
+    if (!(event.key in keys)) return;
     event.preventDefault();
-    const t = tabs[(i + next + tabs.length) % tabs.length];
-    setActive(t.id);
-    document.getElementById(`tab-${t.id}`)?.focus();
+    go(keys[event.key], true);
+  };
+
+  // Deslizar para os lados na tela troca de aba (só quando o gesto é claramente horizontal)
+  const onTouchStart = (event) => {
+    const p = event.touches[0];
+    touch.current = { x: p.clientX, y: p.clientY };
+  };
+  const onTouchEnd = (event) => {
+    if (!touch.current) return;
+    const p = event.changedTouches[0];
+    const dx = p.clientX - touch.current.x;
+    const dy = p.clientY - touch.current.y;
+    touch.current = null;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) go(dx < 0 ? 1 : -1);
   };
 
   return (
-    <div className="rise wrap relative mt-14 sm:mt-16" style={{ animationDelay: '0.8s' }}>
+    <div className="rise wrap relative mt-12 sm:mt-16" style={{ animationDelay: '0.8s' }}>
       <div
         role="tablist"
         aria-label="Telas do ApiceFlow"
         onKeyDown={onKey}
-        className="tour-tabs -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 lg:mx-auto lg:w-fit lg:flex-wrap lg:justify-center lg:overflow-visible lg:rounded-full lg:border lg:border-white/[0.08] lg:bg-night/60 lg:p-1.5 lg:backdrop-blur-md"
+        className="grid grid-cols-4 gap-2 sm:grid-cols-7 lg:mx-auto lg:flex lg:w-fit lg:justify-center lg:gap-1 lg:rounded-full lg:border lg:border-white/[0.08] lg:bg-night/60 lg:p-1.5 lg:backdrop-blur-md"
       >
         {tabs.map((t) => {
           const on = t.id === active;
+          const Icon = t.icon;
           return (
             <button
               key={t.id}
@@ -73,17 +100,27 @@ function HeroTour() {
               aria-controls="tour-panel"
               tabIndex={on ? 0 : -1}
               onClick={() => setActive(t.id)}
-              className={`shrink-0 whitespace-nowrap rounded-full border px-4 py-2 text-[15px] font-medium transition-colors ${
-                on ? 'border-mint/50 bg-mint/10 text-ink lg:border-transparent lg:bg-mint lg:text-night' : 'border-white/[0.1] text-mist hover:text-ink lg:border-transparent'
+              className={`flex flex-col items-center justify-center gap-1.5 rounded-xl border px-1 py-2.5 text-[12px] font-medium transition-colors sm:text-[13px] lg:flex-row lg:gap-2 lg:whitespace-nowrap lg:rounded-full lg:px-4 lg:py-2 lg:text-[15px] ${
+                on
+                  ? 'border-mint/50 bg-mint/10 text-ink lg:border-transparent lg:bg-mint lg:text-night'
+                  : 'border-white/[0.08] bg-white/[0.02] text-mist hover:text-ink lg:border-transparent lg:bg-transparent'
               }`}
             >
+              <Icon className={`h-5 w-5 lg:h-4 lg:w-4 ${on ? 'text-mint lg:text-night' : ''}`} aria-hidden="true" />
               {t.label}
             </button>
           );
         })}
       </div>
 
-      <div id="tour-panel" role="tabpanel" aria-labelledby={`tab-${active}`} className="mt-5 sm:mt-6">
+      <div
+        id="tour-panel"
+        role="tabpanel"
+        aria-labelledby={`tab-${active}`}
+        className="mt-5 sm:mt-6"
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+      >
         <p key={`t-${active}`} className="tab-in mx-auto max-w-xl text-center text-[15px] text-mist">
           {current.text}
         </p>
@@ -93,6 +130,22 @@ function HeroTour() {
               <current.Screen />
             </Scaled>
           </div>
+
+          {/* Celular e tablet: anterior / próxima e a posição atual */}
+          <div className="mt-4 flex items-center justify-between lg:hidden">
+            <button type="button" onClick={() => go(-1)} className="flex h-11 w-11 items-center justify-center rounded-full border border-white/[0.1] text-ink" aria-label={`Tela anterior: ${tabs[(index - 1 + tabs.length) % tabs.length].label}`}>
+              <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+            </button>
+            <div className="flex items-center gap-1.5" aria-hidden="true">
+              {tabs.map((t, i) => (
+                <span key={t.id} className={`h-1.5 rounded-full transition-all duration-300 ${i === index ? 'w-5 bg-mint' : 'w-1.5 bg-white/20'}`} />
+              ))}
+            </div>
+            <button type="button" onClick={() => go(1)} className="flex h-11 w-11 items-center justify-center rounded-full border border-white/[0.1] text-ink" aria-label={`Próxima tela: ${tabs[(index + 1) % tabs.length].label}`}>
+              <ChevronRight className="h-5 w-5" aria-hidden="true" />
+            </button>
+          </div>
+
           <figcaption className="mt-4 text-center text-sm text-mist">
             Telas do ApiceFlow com dados de exemplo. <Link to="/recursos" className="link">Ver todos os recursos</Link>
           </figcaption>
