@@ -238,6 +238,12 @@
   }
 }
 
+/* Animações que esperam o bloco aparecer na tela */
+.paused,
+.paused * {
+  animation-play-state: paused !important;
+}
+
 /* FAQ */
 .faq summary {
   list-style: none;

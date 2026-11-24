@@ -66,15 +66,82 @@ export default function IntegrationHub() {
         ))}
       </div>
 
-      {/* Celular: lista */}
-      <ul className="grid gap-px overflow-hidden rounded-[14px] border border-white/[0.09] bg-white/[0.06] md:hidden">
-        {nodes.map((n) => (
-          <li key={n.id} className="flex items-center justify-between gap-4 bg-night px-5 py-4">
-            <p className="font-display text-[17px] font-medium text-ink">{n.name}</p>
-            <p className="text-right text-[14px] text-mist">{n.text}</p>
-          </li>
-        ))}
-      </ul>
+      <MobileHub />
     </>
+  );
+}
+
+/*
+ * Celular: o mesmo diagrama na vertical. Entradas em cima (WhatsApp e Gemini),
+ * o ApiceFlow no meio e as conexões de anúncios e arquivos embaixo.
+ * Coordenadas num viewBox de 360 x 560; cartões e linhas usam a mesma escala.
+ */
+const M = { w: 360, h: 560, cardH: 84, center: { x: 180, top: 210, bottom: 306 } };
+
+const mobileNodes = [
+  { id: 'whatsapp', name: 'WhatsApp', text: 'Pedidos e arquivos', x: 0, y: 0, w: 170, edge: 'bottom' },
+  { id: 'gemini', name: 'Gemini', text: 'Entende os pedidos', x: 190, y: 0, w: 170, edge: 'bottom' },
+  { id: 'meta', name: 'Meta Ads', text: 'Campanhas e conversões', x: 0, y: 384, w: 170, edge: 'top' },
+  { id: 'google', name: 'Google Ads', text: 'Conversões rastreadas', x: 190, y: 384, w: 170, edge: 'top' },
+  { id: 'drive', name: 'Google Drive', text: 'Uma pasta por cliente', x: 95, y: 476, w: 170, edge: 'top' },
+];
+
+const mobilePath = (n) => {
+  const ax = n.x + n.w / 2;
+  const ay = n.edge === 'bottom' ? n.y + M.cardH : n.y;
+  const cy = n.edge === 'bottom' ? M.center.top : M.center.bottom;
+  const midY = (ay + cy) / 2;
+  return `M ${ax} ${ay} C ${ax} ${midY}, ${M.center.x} ${midY}, ${M.center.x} ${cy}`;
+};
+
+const pct = (v, total) => `${(v / total) * 100}%`;
+
+function MobileHub() {
+  return (
+    <div className="relative mx-auto aspect-[360/560] w-full max-w-[420px] md:hidden" aria-hidden="true">
+      <svg viewBox={`0 0 ${M.w} ${M.h}`} className="absolute inset-0 h-full w-full">
+        <defs>
+          <linearGradient id="hub-line-v" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#34D399" stopOpacity="0.08" />
+            <stop offset="0.5" stopColor="#34D399" stopOpacity="0.4" />
+            <stop offset="1" stopColor="#34D399" stopOpacity="0.08" />
+          </linearGradient>
+        </defs>
+        {mobileNodes.map((n, i) => (
+          <g key={n.id}>
+            <path id={`hub-m-${n.id}`} d={mobilePath(n)} fill="none" stroke="url(#hub-line-v)" strokeWidth="1.5" />
+            <circle r="3" fill="#45F0B0" className="hub-dot">
+              <animateMotion dur={`${2.6 + i * 0.4}s`} repeatCount="indefinite">
+                <mpath href={`#hub-m-${n.id}`} />
+              </animateMotion>
+            </circle>
+          </g>
+        ))}
+      </svg>
+
+      <div
+        className="absolute flex -translate-x-1/2 flex-col items-center justify-center rounded-2xl border border-mint/30 bg-deep shadow-[0_0_50px_-8px_rgba(52,211,153,0.5)]"
+        style={{
+          left: '50%',
+          top: pct(M.center.top, M.h),
+          width: pct(110, M.w),
+          height: pct(M.center.bottom - M.center.top, M.h),
+        }}
+      >
+        <img src={logoSm} alt="" className="w-[56%]" />
+        <span className="mt-1 font-display text-[14px] font-medium text-ink">ApiceFlow</span>
+      </div>
+
+      {mobileNodes.map((n) => (
+        <div
+          key={n.id}
+          className="absolute flex flex-col justify-center rounded-xl border border-white/[0.09] bg-surface/85 px-3.5 backdrop-blur"
+          style={{ left: pct(n.x, M.w), top: pct(n.y, M.h), width: pct(n.w, M.w), height: pct(M.cardH, M.h) }}
+        >
+          <p className="font-display text-[15px] font-medium leading-tight text-ink">{n.name}</p>
+          <p className="mt-1 text-[12.5px] leading-snug text-mist">{n.text}</p>
+        </div>
+      ))}
+    </div>
   );
 }

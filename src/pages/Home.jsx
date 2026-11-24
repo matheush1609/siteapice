@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MessageCircle } from 'lucide-react';
 import LightRays from '../components/LightRays';
@@ -14,14 +14,97 @@ import {
   ReportsScreen,
   TasksScreen,
 } from '../screens/Screens';
-import { Bubble, FileReply, Phone, TaskReply } from '../screens/Chat';
+import { Bubble, Phone, TaskReply } from '../screens/Chat';
 import { DEFAULT_WHATSAPP_TEXT, whatsappLink } from '../config';
 import { STARTING_PRICE, adjustPlans, formatPrice } from '../data/plans';
 import IntegrationHub from '../components/IntegrationHub';
 
+// Mesma ordem e nomes do menu lateral da main do ApiceFlow
+const tabs = [
+  { id: 'dashboard', label: 'Dashboard', text: 'Clientes ativos, pendentes e arquivos recebidos assim que você entra.', Screen: DashboardScreen },
+  { id: 'clientes', label: 'Clientes', text: 'Um perfil por cliente, com campanhas, tarefas, arquivos e responsável.', Screen: ClientsScreen },
+  { id: 'marketing', label: 'Marketing', text: 'Campanhas de Meta Ads e Google Ads lado a lado, com investimento e conversões rastreadas.', Screen: MarketingScreen },
+  { id: 'tarefas', label: 'Tarefas', text: 'Quadro da equipe com prioridade, prazo e responsável em cada card.', Screen: TasksScreen },
+  { id: 'relatorios', label: 'Relatórios', text: 'Orçamento, gasto, conversões e ROI de cada cliente no mês.', Screen: ReportsScreen },
+  { id: 'financeiro', label: 'Financeiro', text: 'Gastos da agência, contas pendentes e pagas, separados por categoria.', Screen: FinanceScreen },
+  { id: 'parceiros', label: 'Parceiros', text: 'API própria, webhooks e conexões para ligar o ApiceFlow ao CRM ou ERP.', Screen: PartnersScreen },
+];
+
+// Tour pelas telas, em destaque no topo da página, abrindo no Dashboard
+function HeroTour() {
+  const [active, setActive] = useState('dashboard');
+  const current = tabs.find((t) => t.id === active);
+
+  // No celular as abas ficam numa fileira rolável: mantém a escolhida à vista
+  useEffect(() => {
+    const tab = document.getElementById(`tab-${active}`);
+    const list = tab?.parentElement;
+    if (!list || list.scrollWidth <= list.clientWidth) return;
+    list.scrollTo({ left: tab.offsetLeft - 16, behavior: 'smooth' });
+  }, [active]);
+
+  const onKey = (event) => {
+    const i = tabs.findIndex((t) => t.id === active);
+    const next = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
+    if (!next) return;
+    event.preventDefault();
+    const t = tabs[(i + next + tabs.length) % tabs.length];
+    setActive(t.id);
+    document.getElementById(`tab-${t.id}`)?.focus();
+  };
+
+  return (
+    <div className="rise wrap relative mt-14 sm:mt-16" style={{ animationDelay: '0.8s' }}>
+      <div
+        role="tablist"
+        aria-label="Telas do ApiceFlow"
+        onKeyDown={onKey}
+        className="tour-tabs -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 lg:mx-auto lg:w-fit lg:flex-wrap lg:justify-center lg:overflow-visible lg:rounded-full lg:border lg:border-white/[0.08] lg:bg-night/60 lg:p-1.5 lg:backdrop-blur-md"
+      >
+        {tabs.map((t) => {
+          const on = t.id === active;
+          return (
+            <button
+              key={t.id}
+              id={`tab-${t.id}`}
+              role="tab"
+              type="button"
+              aria-selected={on}
+              aria-controls="tour-panel"
+              tabIndex={on ? 0 : -1}
+              onClick={() => setActive(t.id)}
+              className={`shrink-0 whitespace-nowrap rounded-full border px-4 py-2 text-[15px] font-medium transition-colors ${
+                on ? 'border-mint/50 bg-mint/10 text-ink lg:border-transparent lg:bg-mint lg:text-night' : 'border-white/[0.1] text-mist hover:text-ink lg:border-transparent'
+              }`}
+            >
+              {t.label}
+            </button>
+          );
+        })}
+      </div>
+
+      <div id="tour-panel" role="tabpanel" aria-labelledby={`tab-${active}`} className="mt-5 sm:mt-6">
+        <p key={`t-${active}`} className="tab-in mx-auto max-w-xl text-center text-[15px] text-mist">
+          {current.text}
+        </p>
+        <figure className="m-0 mt-6">
+          <div key={active} className="screen tab-in">
+            <Scaled width={1320}>
+              <current.Screen />
+            </Scaled>
+          </div>
+          <figcaption className="mt-4 text-center text-sm text-mist">
+            Telas do ApiceFlow com dados de exemplo. <Link to="/recursos" className="link">Ver todos os recursos</Link>
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+  );
+}
+
 function Hero() {
   return (
-    <section className="relative -mt-16 overflow-hidden pt-16">
+    <section className="relative -mt-16 overflow-hidden pb-16 pt-16 sm:pb-24">
       <div className="absolute inset-x-0 top-0 h-[880px]" style={{ maskImage: 'linear-gradient(to bottom, black 40%, transparent)' }}>
         <LightRays intensity={10} rays={30} reach={14} position={50} />
       </div>
@@ -45,110 +128,28 @@ function Hero() {
         </div>
       </div>
 
-      <figure className="wrap relative mt-16 sm:mt-20">
-        <div className="rise relative flex flex-col gap-4 lg:block lg:pr-20 xl:pr-28" style={{ animationDelay: '0.8s' }}>
-          <div className="screen">
-            <Scaled width={1320}>
-              <TasksScreen newTask newTaskDelay={3.4} />
-            </Scaled>
-          </div>
-          <div className="relative z-10 order-first mx-auto w-full max-w-[360px] lg:absolute lg:-bottom-12 lg:right-0 lg:order-none lg:w-[300px] xl:w-[330px]">
-            <Phone>
-              <Bubble from="me" time="14:02" delay={1.6}>
-                Cria uma tarefa pra Ana: revisar os criativos da campanha de Natal da Loja Aurora, prioridade alta, até sexta
-              </Bubble>
-              <Bubble from="bot" time="14:02" delay={2.8}>
-                <TaskReply />
-              </Bubble>
-            </Phone>
-          </div>
-        </div>
-        <figcaption className="mt-8 text-center text-sm text-mist lg:mt-16">
-          Uma mensagem no WhatsApp vira tarefa no quadro da equipe. Dados de exemplo.
-        </figcaption>
-      </figure>
+      <HeroTour />
     </section>
   );
 }
 
-// Mesma ordem e nomes do menu lateral da main do ApiceFlow
-const tabs = [
-  { id: 'dashboard', label: 'Dashboard', text: 'Clientes ativos, pendentes e arquivos recebidos assim que você entra.', Screen: DashboardScreen },
-  { id: 'clientes', label: 'Clientes', text: 'Um perfil por cliente, com campanhas, tarefas, arquivos e responsável.', Screen: ClientsScreen },
-  { id: 'marketing', label: 'Marketing', text: 'Campanhas de Meta Ads e Google Ads lado a lado, com investimento e conversões rastreadas.', Screen: MarketingScreen },
-  { id: 'tarefas', label: 'Tarefas', text: 'Quadro da equipe com prioridade, prazo e responsável em cada card.', Screen: TasksScreen },
-  { id: 'relatorios', label: 'Relatórios', text: 'Orçamento, gasto, conversões e ROI de cada cliente no mês.', Screen: ReportsScreen },
-  { id: 'financeiro', label: 'Financeiro', text: 'Gastos da agência, contas pendentes e pagas, separados por categoria.', Screen: FinanceScreen },
-  { id: 'parceiros', label: 'Parceiros', text: 'API própria, webhooks e conexões para ligar o ApiceFlow ao CRM ou ERP.', Screen: PartnersScreen },
-];
-
-function Tour() {
-  const [active, setActive] = useState('marketing');
-  const current = tabs.find((t) => t.id === active);
-
-  // No celular as abas ficam numa fileira rolável: mantém a escolhida à vista
+// Fica parado até aparecer na tela; aí as animações começam do início
+function useInView(options = { threshold: 0.35 }) {
+  const ref = useRef(null);
+  const [seen, setSeen] = useState(false);
   useEffect(() => {
-    const tab = document.getElementById(`tab-${active}`);
-    const list = tab?.parentElement;
-    if (!list || list.scrollWidth <= list.clientWidth) return;
-    list.scrollTo({ left: tab.offsetLeft - 16, behavior: 'smooth' });
-  }, [active]);
-
-  const onKey = (event) => {
-    const i = tabs.findIndex((t) => t.id === active);
-    const next = event.key === 'ArrowRight' || event.key === 'ArrowDown' ? 1 : event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? -1 : 0;
-    if (!next) return;
-    event.preventDefault();
-    const t = tabs[(i + next + tabs.length) % tabs.length];
-    setActive(t.id);
-    document.getElementById(`tab-${t.id}`)?.focus();
-  };
-
-  return (
-    <section className="border-t border-white/[0.07] py-16 sm:py-24 lg:py-32">
-      <div className="wrap">
-        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          <h2 className="h2 max-w-2xl">A rotina da agência num lugar só</h2>
-          <Link to="/recursos" className="link shrink-0 text-[15px]">Ver todos os recursos</Link>
-        </div>
-
-        <div className="mt-12 grid gap-10 lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-12">
-          <div role="tablist" aria-label="Telas do ApiceFlow" aria-orientation="vertical" onKeyDown={onKey} className="tour-tabs -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 lg:mx-0 lg:flex-col lg:gap-1 lg:overflow-visible lg:px-0 lg:pb-0">
-            {tabs.map((t) => {
-              const on = t.id === active;
-              return (
-                <button
-                  key={t.id}
-                  id={`tab-${t.id}`}
-                  role="tab"
-                  type="button"
-                  aria-selected={on}
-                  aria-controls="tour-panel"
-                  tabIndex={on ? 0 : -1}
-                  onClick={() => setActive(t.id)}
-                  className={`shrink-0 rounded-full border px-4 py-2 text-left transition-colors lg:rounded-lg lg:border-0 lg:border-l-2 lg:py-4 ${
-                    on ? 'border-mint/50 bg-mint/10 lg:border-mint lg:bg-white/[0.04]' : 'border-white/[0.1] hover:bg-white/[0.02] lg:border-transparent'
-                  }`}
-                >
-                  <span className={`block whitespace-nowrap text-[15px] font-medium lg:text-[16px] ${on ? 'text-ink' : 'text-mist'}`}>{t.label}</span>
-                  <span className={`mt-1 hidden text-[14px] leading-snug text-mist lg:block ${on ? '' : 'lg:hidden'}`}>{t.text}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          <div id="tour-panel" role="tabpanel" aria-labelledby={`tab-${active}`}>
-            <p key={`t-${active}`} className="tab-in mb-5 text-[15px] text-mist lg:hidden">{current.text}</p>
-            <div key={active} className="screen tab-in">
-              <Scaled width={1320}>
-                <current.Screen />
-              </Scaled>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
+    const el = ref.current;
+    if (!el || seen) return undefined;
+    const io = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setSeen(true);
+        io.disconnect();
+      }
+    }, options);
+    io.observe(el);
+    return () => io.disconnect();
+  }, [seen]);
+  return [ref, seen];
 }
 
 const asks = [
@@ -158,44 +159,55 @@ const asks = [
   ['Me manda o briefing da Aurora', 'Procura na pasta do cliente no Drive.'],
 ];
 
-function Assistant() {
+// Exemplo: uma mensagem no WhatsApp vira tarefa no quadro da equipe
+function WhatsAppDemo() {
+  const [ref, seen] = useInView();
+
   return (
     <section className="relative overflow-hidden border-t border-white/[0.07] bg-deep py-16 sm:py-24 lg:py-32">
-      <div className="wrap grid items-center gap-16 lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-24">
-        <div>
-          <h2 className="h2 max-w-xl">Sua equipe pede por mensagem. O assistente faz no sistema.</h2>
-          <p className="lead mt-5 max-w-xl">
-            O assistente usa o Gemini, a IA do Google, para entender o que foi escrito e registrar no ApiceFlow. Funciona no
-            WhatsApp e no chat dentro do painel.
-          </p>
-          <dl className="mt-10 max-w-xl border-t border-white/[0.08]">
-            {asks.map(([ask, result]) => (
-              <div key={ask} className="grid gap-1 border-b border-white/[0.08] py-4 sm:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] sm:gap-6">
-                <dt className="text-ink">“{ask}”</dt>
-                <dd className="text-mist">{result}</dd>
-              </div>
-            ))}
-          </dl>
-          <Link to="/assistente" className="link mt-8 inline-block text-[15px]">Como o assistente funciona</Link>
+      <div className="wrap">
+        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <div className="max-w-2xl">
+            <h2 className="h2">Sua equipe pede por mensagem. O assistente faz no sistema.</h2>
+            <p className="lead mt-5">
+              O assistente usa o Gemini, a IA do Google, para entender o que foi escrito e registrar no ApiceFlow. Funciona no
+              WhatsApp e no chat dentro do painel.
+            </p>
+          </div>
+          <Link to="/assistente" className="link shrink-0 text-[15px]">Como o assistente funciona</Link>
         </div>
-        <figure className="m-0">
-          <Phone>
-            <Bubble from="me" time="09:41">Me manda o briefing da Aurora</Bubble>
-            <Bubble from="bot" time="09:41">
-              <FileReply />
-            </Bubble>
-            <Bubble from="me" time="09:42">Valeu. Quais tarefas da Aurora vencem essa semana?</Bubble>
-            <Bubble from="bot" time="09:42">
-              Duas tarefas:
-              <span className="mt-1.5 block text-[13px] text-mist">
-                Campanha de Natal no Meta Ads, Diego, 25/11
-                <br />
-                Revisar criativos da campanha de Natal, Ana, 27/11
-              </span>
-            </Bubble>
-          </Phone>
-          <figcaption className="mt-4 text-center text-sm text-mist">Conversa de exemplo.</figcaption>
+
+        <figure ref={ref} className={`relative mt-12 sm:mt-14 ${seen ? '' : 'paused'}`}>
+          <div className="relative flex flex-col gap-4 lg:block lg:pr-20 xl:pr-28">
+            <div className="screen">
+              <Scaled width={1320}>
+                <TasksScreen newTask newTaskDelay={2.6} />
+              </Scaled>
+            </div>
+            <div className="relative z-10 order-first mx-auto hidden w-full max-w-[360px] sm:block lg:absolute lg:-bottom-12 lg:right-0 lg:order-none lg:w-[300px] xl:w-[330px]">
+              <Phone>
+                <Bubble from="me" time="14:02" delay={0.4}>
+                  Cria uma tarefa pra Ana: revisar os criativos da campanha de Natal da Loja Aurora, prioridade alta, até sexta
+                </Bubble>
+                <Bubble from="bot" time="14:02" delay={1.8}>
+                  <TaskReply />
+                </Bubble>
+              </Phone>
+            </div>
+          </div>
+          <figcaption className="mt-8 text-center text-sm text-mist lg:mt-16">
+            Uma mensagem no WhatsApp vira tarefa no quadro da equipe. Dados de exemplo.
+          </figcaption>
         </figure>
+
+        <dl className="mt-14 grid gap-px overflow-hidden rounded-[14px] border border-white/[0.08] bg-white/[0.08] sm:grid-cols-2">
+          {asks.map(([ask, result]) => (
+            <div key={ask} className="bg-deep p-5 sm:p-6">
+              <dt className="text-ink">“{ask}”</dt>
+              <dd className="mt-1.5 text-[15px] text-mist">{result}</dd>
+            </div>
+          ))}
+        </dl>
       </div>
     </section>
   );
@@ -255,8 +267,7 @@ export default function Home() {
   return (
     <>
       <Hero />
-      <Tour />
-      <Assistant />
+      <WhatsAppDemo />
       <Integrations />
       <PricingTeaser />
       <ClosingCta />
