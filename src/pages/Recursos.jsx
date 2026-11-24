@@ -44,10 +44,10 @@ const modules = [
     Screen: ClientsScreen,
   },
   {
-    id: 'campanhas',
-    title: 'Campanhas',
+    id: 'marketing',
+    title: 'Marketing',
     icon: LineChart,
-    text: 'Meta Ads e Google Ads no mesmo painel, separados por cliente, com as conversões rastreadas.',
+    text: 'As campanhas de Meta Ads e Google Ads no mesmo painel, separadas por cliente, com as conversões rastreadas.',
     points: ['Investimento, conversões e custo por conversão', 'Gráfico diário por canal', 'Rastreamento de conversões do Google Ads'],
     Screen: MarketingScreen,
   },

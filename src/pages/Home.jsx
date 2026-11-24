@@ -10,6 +10,7 @@ import {
   DashboardScreen,
   FinanceScreen,
   MarketingScreen,
+  PartnersScreen,
   ReportsScreen,
   TasksScreen,
 } from '../screens/Screens';
@@ -70,17 +71,19 @@ function Hero() {
   );
 }
 
+// Mesma ordem e nomes do menu lateral da main do ApiceFlow
 const tabs = [
   { id: 'dashboard', label: 'Dashboard', text: 'Clientes ativos, pendentes e arquivos recebidos assim que você entra.', Screen: DashboardScreen },
   { id: 'clientes', label: 'Clientes', text: 'Um perfil por cliente, com campanhas, tarefas, arquivos e responsável.', Screen: ClientsScreen },
-  { id: 'campanhas', label: 'Campanhas', text: 'Meta Ads e Google Ads lado a lado, com investimento e conversões rastreadas.', Screen: MarketingScreen },
+  { id: 'marketing', label: 'Marketing', text: 'Campanhas de Meta Ads e Google Ads lado a lado, com investimento e conversões rastreadas.', Screen: MarketingScreen },
   { id: 'tarefas', label: 'Tarefas', text: 'Quadro da equipe com prioridade, prazo e responsável em cada card.', Screen: TasksScreen },
-  { id: 'financeiro', label: 'Financeiro', text: 'Gastos da agência, contas pendentes e pagas, separados por categoria.', Screen: FinanceScreen },
   { id: 'relatorios', label: 'Relatórios', text: 'Orçamento, gasto, conversões e ROI de cada cliente no mês.', Screen: ReportsScreen },
+  { id: 'financeiro', label: 'Financeiro', text: 'Gastos da agência, contas pendentes e pagas, separados por categoria.', Screen: FinanceScreen },
+  { id: 'parceiros', label: 'Parceiros', text: 'API própria, webhooks e conexões para ligar o ApiceFlow ao CRM ou ERP.', Screen: PartnersScreen },
 ];
 
 function Tour() {
-  const [active, setActive] = useState('campanhas');
+  const [active, setActive] = useState('marketing');
   const current = tabs.find((t) => t.id === active);
 
   const onKey = (event) => {
