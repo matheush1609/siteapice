@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MessageCircle } from 'lucide-react';
 import LightRays from '../components/LightRays';
@@ -46,13 +46,13 @@ function Hero() {
       </div>
 
       <figure className="wrap relative mt-16 sm:mt-20">
-        <div className="rise relative lg:pr-20 xl:pr-28" style={{ animationDelay: '0.8s' }}>
+        <div className="rise relative flex flex-col gap-4 lg:block lg:pr-20 xl:pr-28" style={{ animationDelay: '0.8s' }}>
           <div className="screen">
             <Scaled width={1320}>
               <TasksScreen newTask newTaskDelay={3.4} />
             </Scaled>
           </div>
-          <div className="relative z-10 mx-auto -mt-10 w-full max-w-[340px] sm:-mt-24 lg:absolute lg:-bottom-12 lg:right-0 lg:mt-0 lg:w-[300px] xl:w-[330px]">
+          <div className="relative z-10 order-first mx-auto w-full max-w-[360px] lg:absolute lg:-bottom-12 lg:right-0 lg:order-none lg:w-[300px] xl:w-[330px]">
             <Phone>
               <Bubble from="me" time="14:02" delay={1.6}>
                 Cria uma tarefa pra Ana: revisar os criativos da campanha de Natal da Loja Aurora, prioridade alta, até sexta
@@ -86,6 +86,14 @@ function Tour() {
   const [active, setActive] = useState('marketing');
   const current = tabs.find((t) => t.id === active);
 
+  // No celular as abas ficam numa fileira rolável: mantém a escolhida à vista
+  useEffect(() => {
+    const tab = document.getElementById(`tab-${active}`);
+    const list = tab?.parentElement;
+    if (!list || list.scrollWidth <= list.clientWidth) return;
+    list.scrollTo({ left: tab.offsetLeft - 16, behavior: 'smooth' });
+  }, [active]);
+
   const onKey = (event) => {
     const i = tabs.findIndex((t) => t.id === active);
     const next = event.key === 'ArrowRight' || event.key === 'ArrowDown' ? 1 : event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? -1 : 0;
@@ -97,7 +105,7 @@ function Tour() {
   };
 
   return (
-    <section className="border-t border-white/[0.07] py-24 lg:py-32">
+    <section className="border-t border-white/[0.07] py-16 sm:py-24 lg:py-32">
       <div className="wrap">
         <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <h2 className="h2 max-w-2xl">A rotina da agência num lugar só</h2>
@@ -105,7 +113,7 @@ function Tour() {
         </div>
 
         <div className="mt-12 grid gap-10 lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-12">
-          <div role="tablist" aria-label="Telas do ApiceFlow" aria-orientation="vertical" onKeyDown={onKey} className="-mx-4 flex gap-1 overflow-x-auto px-4 pb-2 lg:mx-0 lg:flex-col lg:overflow-visible lg:px-0">
+          <div role="tablist" aria-label="Telas do ApiceFlow" aria-orientation="vertical" onKeyDown={onKey} className="tour-tabs -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 lg:mx-0 lg:flex-col lg:gap-1 lg:overflow-visible lg:px-0 lg:pb-0">
             {tabs.map((t) => {
               const on = t.id === active;
               return (
@@ -118,11 +126,11 @@ function Tour() {
                   aria-controls="tour-panel"
                   tabIndex={on ? 0 : -1}
                   onClick={() => setActive(t.id)}
-                  className={`shrink-0 rounded-lg border-l-2 px-4 py-3 text-left transition-colors lg:py-4 ${
-                    on ? 'border-mint bg-white/[0.04]' : 'border-transparent hover:bg-white/[0.02]'
+                  className={`shrink-0 rounded-full border px-4 py-2 text-left transition-colors lg:rounded-lg lg:border-0 lg:border-l-2 lg:py-4 ${
+                    on ? 'border-mint/50 bg-mint/10 lg:border-mint lg:bg-white/[0.04]' : 'border-white/[0.1] hover:bg-white/[0.02] lg:border-transparent'
                   }`}
                 >
-                  <span className={`block text-[16px] font-medium ${on ? 'text-ink' : 'text-mist'}`}>{t.label}</span>
+                  <span className={`block whitespace-nowrap text-[15px] font-medium lg:text-[16px] ${on ? 'text-ink' : 'text-mist'}`}>{t.label}</span>
                   <span className={`mt-1 hidden text-[14px] leading-snug text-mist lg:block ${on ? '' : 'lg:hidden'}`}>{t.text}</span>
                 </button>
               );
@@ -152,7 +160,7 @@ const asks = [
 
 function Assistant() {
   return (
-    <section className="relative overflow-hidden border-t border-white/[0.07] bg-deep py-24 lg:py-32">
+    <section className="relative overflow-hidden border-t border-white/[0.07] bg-deep py-16 sm:py-24 lg:py-32">
       <div className="wrap grid items-center gap-16 lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-24">
         <div>
           <h2 className="h2 max-w-xl">Sua equipe pede por mensagem. O assistente faz no sistema.</h2>
@@ -195,7 +203,7 @@ function Assistant() {
 
 function Integrations() {
   return (
-    <section className="border-t border-white/[0.07] py-24 lg:py-32">
+    <section className="border-t border-white/[0.07] py-16 sm:py-24 lg:py-32">
       <div className="wrap">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="h2">Tudo chega ao mesmo painel</h2>
@@ -214,7 +222,7 @@ function Integrations() {
 function PricingTeaser() {
   const list = adjustPlans();
   return (
-    <section className="border-t border-white/[0.07] bg-deep py-24 lg:py-32">
+    <section className="border-t border-white/[0.07] bg-deep py-16 sm:py-24 lg:py-32">
       <div className="wrap">
         <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div className="max-w-2xl">

@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react';
+import { createContext, useContext, useLayoutEffect, useRef, useState } from 'react';
 import {
   BarChart3,
   Bell,
@@ -22,24 +22,27 @@ import logoSm from '../assets/apiceflow-mark-sm.webp';
 /*
  * Renderiza uma tela do app em largura fixa e escala para caber no espaço,
  * como um screenshot nítido em qualquer tamanho de tela.
+ * Em celular, a tela é desenhada na versão celular do app (sem menu lateral,
+ * uma coluna), em vez da versão de computador encolhida.
  */
-export function Scaled({ width = 1320, cropFrom = 256, cropTo = 620, children, className = '' }) {
+const MobileCtx = createContext(false);
+export const useMobile = () => useContext(MobileCtx);
+
+export function Scaled({ width = 1320, mobileWidth = 400, children, className = '' }) {
   const outer = useRef(null);
   const inner = useRef(null);
+  const [mobile, setMobile] = useState(false);
   const [scale, setScale] = useState(1);
-  const [shift, setShift] = useState(0);
   const [height, setHeight] = useState(undefined);
 
   useLayoutEffect(() => {
     const update = () => {
       if (!outer.current || !inner.current) return;
-      // Em celulares, esconde o menu lateral do app e mostra só o conteúdo, maior,
-      // em vez da tela inteira minúscula
       const w = outer.current.clientWidth;
-      const crop = w < 480;
-      const s = crop ? w / cropTo : w / width;
+      const m = w < 640;
+      setMobile(m);
+      const s = w / (m ? mobileWidth : width);
       setScale(s);
-      setShift(crop ? -cropFrom * s : 0);
       setHeight(inner.current.offsetHeight * s);
     };
     update();
@@ -47,12 +50,16 @@ export function Scaled({ width = 1320, cropFrom = 256, cropTo = 620, children, c
     ro.observe(outer.current);
     ro.observe(inner.current);
     return () => ro.disconnect();
-  }, [width, cropFrom, cropTo]);
+  }, [width, mobileWidth]);
 
   return (
     <div ref={outer} className={`relative w-full overflow-hidden ${className}`} style={{ height }}>
-      <div ref={inner} className="absolute left-0 top-0 origin-top-left" style={{ width, transform: `translateX(${shift}px) scale(${scale})` }}>
-        {children}
+      <div
+        ref={inner}
+        className="absolute left-0 top-0 origin-top-left"
+        style={{ width: mobile ? mobileWidth : width, transform: `scale(${scale})` }}
+      >
+        <MobileCtx.Provider value={mobile}>{children}</MobileCtx.Provider>
       </div>
     </div>
   );
@@ -75,6 +82,45 @@ const nav = [
 const chip = 'flex h-9 items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.035] px-3 text-[12px] font-medium text-mist';
 
 export function AppFrame({ active, title, subtitle, actions, children, minHeight = 700 }) {
+  const mobile = useMobile();
+
+  if (mobile) {
+    // Como o ApiceFlow aparece no celular: sem menu lateral, barra compacta, uma coluna
+    return (
+      <div className="bg-night text-ink" aria-hidden="true">
+        <header className="flex items-center justify-between border-b border-white/[0.06] px-5 py-3">
+          <div className="flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-mint shadow-[0_0_14px_rgba(52,211,153,0.55)]" />
+            <span className="text-[14px] font-semibold">ApiceFlow</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className={chip}>
+              <Zap className="h-4 w-4 text-teal" />
+              Quick action
+            </span>
+            <span className="relative flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.035] text-mist">
+              <Bell className="h-4 w-4" />
+              <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-mint" />
+            </span>
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-mint to-teal text-[13px] font-black text-night">
+              M
+            </span>
+          </div>
+        </header>
+        <div className="p-5">
+          {title && (
+            <div className="mb-5">
+              <p className="text-[26px] font-bold leading-tight tracking-tight">{title}</p>
+              {subtitle && <p className="mt-1 text-[13.5px] text-mist">{subtitle}</p>}
+              {actions && <div className="mt-3">{actions}</div>}
+            </div>
+          )}
+          {children}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex text-ink" style={{ minHeight }} aria-hidden="true">
       <aside className="flex w-64 shrink-0 flex-col border-r border-white/[0.05] bg-sidebar">
@@ -103,8 +149,14 @@ export function AppFrame({ active, title, subtitle, actions, children, minHeight
           })}
         </nav>
         <div className="space-y-1.5 border-t border-white/[0.06] p-3 text-[14px] text-mist">
-          <div className="flex items-center gap-3 rounded-xl px-3 py-2.5"><ChevronLeft className="h-5 w-5" />Recolher</div>
-          <div className="flex items-center gap-3 rounded-xl px-3 py-2.5"><LogOut className="h-5 w-5" />Sair</div>
+          <div className="flex items-center gap-3 rounded-xl px-3 py-2.5">
+            <ChevronLeft className="h-5 w-5" />
+            Recolher
+          </div>
+          <div className="flex items-center gap-3 rounded-xl px-3 py-2.5">
+            <LogOut className="h-5 w-5" />
+            Sair
+          </div>
         </div>
       </aside>
 
@@ -124,14 +176,22 @@ export function AppFrame({ active, title, subtitle, actions, children, minHeight
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <span className={chip}><Zap className="h-4 w-4 text-teal" />Quick action</span>
-            <span className={chip}><Sparkles className="h-4 w-4 text-mint" />AI activity</span>
+            <span className={chip}>
+              <Zap className="h-4 w-4 text-teal" />
+              Quick action
+            </span>
+            <span className={chip}>
+              <Sparkles className="h-4 w-4 text-mint" />
+              AI activity
+            </span>
             <span className="relative flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.035] text-mist">
               <Bell className="h-4 w-4" />
               <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-mint shadow-[0_0_12px_rgba(52,211,153,0.65)]" />
             </span>
             <span className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.035] py-1 pl-2 pr-3">
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-mint to-teal text-[12px] font-black text-night">M</span>
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-mint to-teal text-[12px] font-black text-night">
+                M
+              </span>
               <span className="leading-tight">
                 <span className="block text-[12px] font-semibold">Marina Rocha</span>
                 <span className="block text-[11px] text-mist">admin</span>
@@ -167,8 +227,9 @@ const tones = {
 };
 
 export function Stat({ label, value, icon: Icon, tone = 'mint', hint }) {
+  const m = useMobile();
   return (
-    <div className="rounded-2xl border border-white/[0.08] bg-surface/75 p-5">
+    <div className={`rounded-2xl border border-white/[0.08] bg-surface/75 ${m ? 'p-4' : 'p-5'}`}>
       <div className="flex items-start justify-between">
         <p className="text-[13px] text-mist">{label}</p>
         {Icon && (
@@ -177,14 +238,16 @@ export function Stat({ label, value, icon: Icon, tone = 'mint', hint }) {
           </span>
         )}
       </div>
-      <p className="mt-2 text-[28px] font-bold tracking-tight">{value}</p>
+      <p className={`mt-2 font-bold tracking-tight ${m ? 'text-[22px]' : 'text-[28px]'}`}>{value}</p>
       {hint && <p className="mt-1 text-[12px] text-mist">{hint}</p>}
     </div>
   );
 }
 
 export function Badge({ tone = 'slate', children }) {
-  return <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[12px] font-medium ${tones[tone]}`}>{children}</span>;
+  return (
+    <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[12px] font-medium ${tones[tone]}`}>{children}</span>
+  );
 }
 
 export function Panel({ title, action, children, className = '' }) {
@@ -203,7 +266,9 @@ export function Panel({ title, action, children, className = '' }) {
 
 export function Avatar({ initials, tone = 'from-teal to-sky', size = 'h-7 w-7 text-[11px]' }) {
   return (
-    <span className={`inline-flex shrink-0 items-center justify-center rounded-full bg-gradient-to-br font-semibold text-night ${tone} ${size}`}>
+    <span
+      className={`inline-flex shrink-0 items-center justify-center rounded-full bg-gradient-to-br font-semibold text-night ${tone} ${size}`}
+    >
       {initials}
     </span>
   );

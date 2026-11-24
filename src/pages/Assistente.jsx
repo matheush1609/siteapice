@@ -48,7 +48,7 @@ export default function Assistente() {
         no ApiceFlow e responde com o que foi feito.
       </PageHeader>
 
-      <section className="border-t border-white/[0.07] py-20 lg:py-28">
+      <section className="border-t border-white/[0.07] py-16 sm:py-20 lg:py-28">
         <div className="wrap grid items-start gap-16 lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-24">
           <div>
             <h2 className="h2">Como funciona</h2>
@@ -78,7 +78,7 @@ export default function Assistente() {
         </div>
       </section>
 
-      <section className="border-t border-white/[0.07] bg-deep py-20 lg:py-28">
+      <section className="border-t border-white/[0.07] bg-deep py-16 sm:py-20 lg:py-28">
         <div className="wrap">
           <h2 className="h2 max-w-2xl">O que dá para pedir</h2>
           <div className="mt-12 border-t border-white/[0.08]">
@@ -96,7 +96,7 @@ export default function Assistente() {
         </div>
       </section>
 
-      <section className="border-t border-white/[0.07] py-20 lg:py-28">
+      <section className="border-t border-white/[0.07] py-16 sm:py-20 lg:py-28">
         <div className="wrap">
           <div className="max-w-2xl">
             <h2 className="h2">O cliente manda a foto. Ela já está na pasta dele.</h2>
@@ -116,7 +116,7 @@ export default function Assistente() {
         </div>
       </section>
 
-      <section className="border-t border-white/[0.07] py-20 lg:py-28">
+      <section className="border-t border-white/[0.07] py-16 sm:py-20 lg:py-28">
         <div className="wrap grid gap-10 lg:grid-cols-[20rem_minmax(0,1fr)] lg:gap-16">
           <h2 className="h2">Perguntas sobre o assistente</h2>
           <Faq items={faq} />

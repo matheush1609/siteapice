@@ -42,7 +42,7 @@ export function ClosingCta({ title = 'Quer ver o ApiceFlow com os clientes da su
       <div className="absolute inset-0 -scale-y-100 opacity-70" style={{ maskImage: 'linear-gradient(to bottom, black 20%, transparent 85%)' }}>
         <LightRays intensity={8} rays={26} reach={12} position={50} speed={6} />
       </div>
-      <div className="wrap relative flex flex-col items-center py-28 text-center lg:py-36">
+      <div className="wrap relative flex flex-col items-center py-20 text-center sm:py-28 lg:py-36">
         <h2 className="h2 max-w-3xl sm:text-[3.25rem]">{title}</h2>
         <p className="lead mt-5 max-w-2xl">
           {text ?? 'Chame a equipe no WhatsApp. A gente mostra o painel funcionando e indica o plano certo para o tamanho da agência.'}

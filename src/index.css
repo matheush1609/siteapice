@@ -227,6 +227,17 @@
   }
 }
 
+/* Fileira de abas rolável no celular: some suavemente na borda direita */
+@media (max-width: 1023px) {
+  .tour-tabs {
+    scrollbar-width: none;
+    mask-image: linear-gradient(to right, black 85%, transparent);
+  }
+  .tour-tabs::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 /* FAQ */
 .faq summary {
   list-style: none;

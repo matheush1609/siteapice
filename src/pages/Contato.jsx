@@ -71,7 +71,7 @@ export default function Contato() {
         </div>
       </section>
 
-      <section className="border-t border-white/[0.07] py-20 lg:py-28">
+      <section className="border-t border-white/[0.07] py-16 sm:py-20 lg:py-28">
         <div className="wrap grid gap-10 lg:grid-cols-[20rem_minmax(0,1fr)] lg:gap-16">
           <h2 className="h2">Perguntas frequentes</h2>
           <Faq items={faq} />
